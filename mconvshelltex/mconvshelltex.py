@@ -61,6 +61,8 @@ class SceneSingleLevel():
         # Decimating radius levels for speed (default ri_step=50)
         self.ri_step = ri_step
         self.radius = load_radius()
+        self.r_min = min(self.radius)
+        self.r_max = max(self.radius)
         self.iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(self.radius)]
 
         # Loading example field data
@@ -85,7 +87,7 @@ class SceneSingleLevel():
         for (i_radius,v_radius) in self.iv_radius[::self.ri_step]:
             if any(fieldData > self.p_levels[0]):
                 self.ax.tricontourf(
-                    triang,
+                    self.triang,
                     fieldData,
                     self.p_levels,
                     zdir='z',
@@ -93,8 +95,8 @@ class SceneSingleLevel():
                     offset=v_radius
                 )
         self.ax.set_zlim((
-            min(data.r),
-            max(data.r))
+            self.r_min,
+            self.r_max)
         )
         self.ax.set_box_aspect((5, 3, 1), zoom=1.2)
         self.ax.set_axis_off()
