@@ -83,11 +83,11 @@ class SceneSingleLevel():
     def single_frame_viewangle(self,fieldData,elev,azim):
         self.ax.clear()
         for (i_radius,v_radius) in self.iv_radius[::self.ri_step]:
-            if any(fieldData > p_levels[0]):
+            if any(fieldData > self.p_levels[0]):
                 self.ax.tricontourf(
                     triang,
                     fieldData,
-                    p_levels,
+                    self.p_levels,
                     zdir='z',
                     colors=self.c_set_map(v_radius),
                     offset=v_radius
