@@ -101,20 +101,20 @@ class SceneSingleLevel():
         self.ax.set_box_aspect((5, 3, 1), zoom=1.2)
         self.ax.set_axis_off()
         self.ax.view_init(elev=elev, azim=azim)
-        return self.ax
+        return None
 
     """Rotate the viewing angle"""
     def animate_rotate(self,fieldData,i):
         elev = 30
         azim = _np.interp(i,[0,200],[-65,295])
-        self.ax = single_frame_viewangle(fieldData,elev,azim)
-        return self.ax
+        self.single_frame_viewangle(fieldData,elev,azim)
+        return None
 
     """First animation function for single contour level"""
     def make_stationary_animation(self,filename,dpi=80,fps=25):
         
         # Make animation handle
-        anim_handle = lambda i: animate_rotate(self.exampleFieldData,i)
+        anim_handle = lambda i: self.animate_rotate(self.exampleFieldData,i)
 
         # Make animation 
         ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
