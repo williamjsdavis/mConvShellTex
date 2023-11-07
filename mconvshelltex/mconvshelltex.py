@@ -59,6 +59,7 @@ class SceneSingleLevel():
         self.triang = self.gen_mesh()
 
         # Decimating radius levels for speed (default ri_step=50)
+        self.ri_step = ri_step
         self.radius = load_radius()
         self.iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(self.radius)]
 
