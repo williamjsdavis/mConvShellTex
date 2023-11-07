@@ -99,5 +99,5 @@ def make_animation(filename,dpi=80,fps=25,level=2425,ri_step=50):
     anim_handle = lambda i: animate_rotate(ax,fieldData,iv_radius,c_set_map,i)
 
     # Make animation 
-    ani = _an.FuncAnimation(fig, animate_rotate, interval=40, repeat=True, frames=180)
+    ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
     ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
