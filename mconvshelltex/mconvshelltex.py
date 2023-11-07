@@ -70,9 +70,7 @@ class SceneSingleLevel():
         self.exampleFieldData = tdata["tdata"].flatten()
 
         # Colormap
-        rmin = float(self.exampleFieldData.min())
-        rmax = float(self.exampleFieldData.max())
-        self.c_set_map = make_cmap(rmin,rmax,cmapName='hot')
+        self.c_set_map = make_cmap(self.r_min,self.r_max,cmapName='hot')
 
     """Generate triangulated mesh"""
     def gen_mesh(self):
