@@ -70,7 +70,7 @@ class SceneSingleLevel():
         self.exampleFieldData = tdata["tdata"].flatten()
 
         # Colormap
-        rmin = float(self.exampleFieldData.max())
+        rmin = float(self.exampleFieldData.min())
         rmax = float(self.exampleFieldData.max())
         self.c_set_map = make_cmap(rmin,rmax,cmapName='hot')
 
