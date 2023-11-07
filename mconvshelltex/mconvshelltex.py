@@ -60,15 +60,15 @@ class SceneSingleLevel():
 
         # Decimating radius levels for speed (default ri_step=50)
         self.radius = load_radius()
-        self.iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(radius)]
+        self.iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(self.radius)]
 
-        # Loading data
+        # Loading example field data
         tdata = load_example_tdata()
-        fieldData = tdata["tdata"].flatten()
+        self.exampleFieldData = tdata["tdata"].flatten()
 
         # Colormap
-        rmin = float(fieldData.max())
-        rmax = float(fieldData.max())
+        rmin = float(self.fieldData.max())
+        rmax = float(self.fieldData.max())
         self.c_set_map = make_cmap(rmin,rmax,cmapName='hot')
 
     """Generate triangulated mesh"""
@@ -108,10 +108,10 @@ class SceneSingleLevel():
         return self.ax
 
     """First animation function for single contour level"""
-    def make_animation(self,filename,dpi=80,fps=25):
+    def make_stationary_animation(self,filename,dpi=80,fps=25):
         
         # Make animation handle
-        anim_handle = lambda i: animate_rotate(fieldData,i)
+        anim_handle = lambda i: animate_rotate(self.exampleFieldData,i)
 
         # Make animation 
         ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
