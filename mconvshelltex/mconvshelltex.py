@@ -43,7 +43,7 @@ def make_cmap(rmin,rmax,cmapName='hot'):
 ## Animation functions
 
 """Plot single contours, variable angle"""
-def single_frame_viewangle(ax,fieldData,iv_radius,c_set_map,elev,azim):
+def single_frame_viewangle(ax,fieldData,iv_radius,ri_step,c_set_map,elev,azim):
   ax.clear()
   for (i_radius,v_radius) in iv_radius[::ri_step]:
     if any(fieldData > p_levels[0]):
@@ -65,10 +65,10 @@ def single_frame_viewangle(ax,fieldData,iv_radius,c_set_map,elev,azim):
   return ax
 
 """Rotate the viewing angle"""
-def animate_rotate(ax,fieldData,iv_radius,c_set_map,i):
+def animate_rotate(ax,fieldData,iv_radius,ri_step,c_set_map,i):
   elev = 30
   azim = _np.interp(i,[0,200],[-65,295])
-  ax = single_frame_viewangle(ax,fieldData,iv_radius,c_set_map,elev,azim)
+  ax = single_frame_viewangle(ax,fieldData,iv_radius,ri_step,c_set_map,elev,azim)
   return ax
 
 """First animation function for single contour level"""
@@ -96,7 +96,7 @@ def make_animation(filename,dpi=80,fps=25,level=2425,ri_step=50):
     c_set_map = make_cmap(rmin,rmax,cmapName='hot')
 
     # Make animation handle
-    anim_handle = lambda i: animate_rotate(ax,fieldData,iv_radius,c_set_map,i)
+    anim_handle = lambda i: animate_rotate(ax,fieldData,iv_radius,ri_step,c_set_map,i)
 
     # Make animation 
     ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
