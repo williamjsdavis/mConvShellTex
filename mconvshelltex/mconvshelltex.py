@@ -42,62 +42,77 @@ def make_cmap(rmin,rmax,cmapName='hot'):
 
 ## Animation functions
 
-"""Plot single contours, variable angle"""
-def single_frame_viewangle(ax,fieldData,iv_radius,ri_step,c_set_map,elev,azim):
-  ax.clear()
-  for (i_radius,v_radius) in iv_radius[::ri_step]:
-    if any(fieldData > p_levels[0]):
-      ax.tricontourf(
-          triang,
-          fieldData,
-          p_levels,
-          zdir='z',
-          colors=c_set_map(v_radius),
-          offset=v_radius
-      )
-  ax.set_zlim(
-      (min(data.r),
-      max(data.r))
-  )
-  ax.set_box_aspect((5, 3, 1), zoom=1.2)
-  ax.set_axis_off()
-  ax.view_init(elev=elev, azim=azim)
-  return ax
+class SceneSingleLevel():
+    
+    """Construct base scene properties"""
+    def __init__(self,level=2425,ri_step=50):
+        # Figure object + 3D projection
+        self.fig = _plt.figure(
+            dpi=dpi
+        )
+        self.ax = self.fig.add_subplot(111,projection='3d')
 
-"""Rotate the viewing angle"""
-def animate_rotate(ax,fieldData,iv_radius,ri_step,c_set_map,i):
-  elev = 30
-  azim = _np.interp(i,[0,200],[-65,295])
-  ax = single_frame_viewangle(ax,fieldData,iv_radius,ri_step,c_set_map,elev,azim)
-  return ax
+        # Single contour level
+        self.p_levels = [level,10000]
 
-"""First animation function for single contour level"""
-def make_animation(filename,dpi=80,fps=25,level=2425,ri_step=50):
-    # Figure object + 3D projection
-    fig = _plt.figure(
-        dpi=dpi
-    )
-    ax = fig.add_subplot(111,projection='3d')
+        # Triangular mesh
+        self.triang = self.gen_mesh()
 
-    # Single contour level
-    p_levels = [level,10000]
+        # Decimating radius levels for speed (default ri_step=50)
+        self.radius = load_radius()
+        self.iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(radius)]
 
-    # Decimating radius levels for speed (default ri_step=50)
-    radius = load_radius()
-    iv_radius = [(i_radius,v_radius) for (i_radius,v_radius) in enumerate(radius)]
+        # Loading data
+        tdata = load_example_tdata()
+        fieldData = tdata["tdata"].flatten()
 
-    # Loading data
-    tdata = load_example_tdata()
-    fieldData = tdata["tdata"].flatten()
+        # Colormap
+        rmin = float(fieldData.max())
+        rmax = float(fieldData.max())
+        self.c_set_map = make_cmap(rmin,rmax,cmapName='hot')
 
-    # Colormap
-    rmin = float(fieldData.max())
-    rmax = float(fieldData.max())
-    c_set_map = make_cmap(rmin,rmax,cmapName='hot')
+    """Generate triangulated mesh"""
+    def gen_mesh(self):
+        xygrid = load_xygrid()
+        xgrid = xygrid["xgrid"].flatten()
+        ygrid = xygrid["ygrid"].flatten()
+        return _tri.Triangulation(xgrid, ygrid)
 
-    # Make animation handle
-    anim_handle = lambda i: animate_rotate(ax,fieldData,iv_radius,ri_step,c_set_map,i)
+    """Plot single contours, variable angle"""
+    def single_frame_viewangle(self,fieldData,elev,azim):
+        self.ax.clear()
+        for (i_radius,v_radius) in self.iv_radius[::self.ri_step]:
+            if any(fieldData > p_levels[0]):
+                self.ax.tricontourf(
+                    triang,
+                    fieldData,
+                    p_levels,
+                    zdir='z',
+                    colors=self.c_set_map(v_radius),
+                    offset=v_radius
+                )
+        self.ax.set_zlim((
+            min(data.r),
+            max(data.r))
+        )
+        self.ax.set_box_aspect((5, 3, 1), zoom=1.2)
+        self.ax.set_axis_off()
+        self.ax.view_init(elev=elev, azim=azim)
+        return self.ax
 
-    # Make animation 
-    ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
-    ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
+    """Rotate the viewing angle"""
+    def animate_rotate(self,fieldData,i):
+        elev = 30
+        azim = _np.interp(i,[0,200],[-65,295])
+        self.ax = single_frame_viewangle(fieldData,elev,azim)
+        return self.ax
+
+    """First animation function for single contour level"""
+    def make_animation(self,filename,dpi=80,fps=25):
+        
+        # Make animation handle
+        anim_handle = lambda i: animate_rotate(fieldData,i)
+
+        # Make animation 
+        ani = _an.FuncAnimation(fig, anim_handle, interval=40, repeat=True, frames=180)
+        ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
