@@ -45,7 +45,7 @@ def make_cmap(rmin,rmax,cmapName='hot'):
 class SceneSingleLevel():
     
     """Construct base scene properties"""
-    def __init__(self,level=2425,ri_step=50):
+    def __init__(self,level=2425,ri_step=50,dpi=80):
         # Figure object + 3D projection
         self.fig = _plt.figure(
             dpi=dpi
