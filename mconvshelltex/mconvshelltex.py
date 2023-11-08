@@ -140,7 +140,7 @@ class SceneSingleLevel():
     def load_field_data(self,i):
         # If the index is a start, request the tar file
         isStart = is_start(i)
-        
+
         if isStart: 
             # Get filename and url code
             tarFile, urlCode = find_tarfile(i)
@@ -155,7 +155,7 @@ class SceneSingleLevel():
             # Extract files from tar
             with tarfile.open(tarFile, "r:gz") as tar:
                 tar.extractall()
-        
+
         # Load file from tar
         sphericalFile = f"spherical{i:03d}.nc"
         print(f"Loading:{sphericalFile}")
