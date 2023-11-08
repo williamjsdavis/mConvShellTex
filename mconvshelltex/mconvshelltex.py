@@ -238,7 +238,7 @@ class SceneSingleLevel():
             anim_handle, 
             interval=40, 
             repeat=True, 
-            frames=frames
+            frames=range(1,frames+1)
         )
         ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
 
