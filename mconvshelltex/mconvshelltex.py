@@ -218,6 +218,7 @@ class SceneSingleLevel():
     
     """Keep angle fixed"""
     def animate_fixed(self,i):
+        print(f"frame: {i}")
 
         fieldData = self.load_field_data(i)
         fieldSlice = lambda i: fieldData[:,i,:].flatten()
