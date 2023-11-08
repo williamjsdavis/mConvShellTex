@@ -81,7 +81,7 @@ class SceneSingleLevel():
 
     """Plot single contours, variable angle"""
     def single_frame_viewangle(self,fieldData,elev,azim):
-        #self.ax.clear()
+        self.ax.clear()
         for (i_radius,v_radius) in self.iv_radius[::self.ri_step]:
             if any(fieldData > self.p_levels[0]):
                 self.ax.tricontourf(
@@ -97,7 +97,7 @@ class SceneSingleLevel():
             self.r_max)
         )
         self.ax.set_box_aspect((5, 3, 1), zoom=1.2)
-        #self.ax.set_axis_off()
+        self.ax.set_axis_off()
         self.ax.view_init(elev=elev, azim=azim)
         return None
 
