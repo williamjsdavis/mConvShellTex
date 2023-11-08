@@ -1,6 +1,8 @@
 import pickle
+import urllib.request
+import tarfile
 
-#import xarray as _xr
+import xarray as _xr
 import numpy as _np
 
 import matplotlib.tri as _tri
@@ -39,6 +41,68 @@ def make_cmap(rmin,rmax,cmapName='hot'):
     c_set = _cm.get_cmap(cmapName)
     c_set_map = lambda r: _np.array(c_set(cmap_interp(r))).reshape(-1,4)
     return c_set_map
+
+## Data accessing
+
+data_index_lookup = [
+    ("mantle01.tgz", (1,10), "edS6be3sk8oQ58N"),
+    ("mantle02.tgz", (11,20), "infBBW2Rc9TJwf7"),
+    ("mantle03.tgz", (21,30), "76Esj3yDP9EiaGc"),
+    ("mantle04.tgz", (31,40), "AZmt47d48prCZZF"),
+    ("mantle05.tgz", (41,50), "9fZ4A7ENGR6sQrc"),
+    ("mantle06.tgz", (51,60), "B8HC3H4oqwcsWB3"),
+    ("mantle07.tgz", (61,70), "t3zLJWWeirR5zmG"),
+    ("mantle08.tgz", (71,80), "YmkYgxM7xxrNAwj"),
+    ("mantle09.tgz", (81,90), "rMma6W9MBtQH9LX"),
+    ("mantle10.tgz", (91,100), "MzcZBCaxaojTZJx"),
+    ("mantle11.tgz", (101,110), "dfP6NXHmekQQrHR"),
+    ("mantle12.tgz", (111,120), "2GnLRgPi8W2Dt5p"),
+    ("mantle13.tgz", (121,130), "MqtoESg2d9DsF2P"),
+    ("mantle14.tgz", (131,140), "ysGoJK6B3pLYaDB"),
+    ("mantle15.tgz", (141,150), "Ae32XwCpt7bHo9D"),
+    ("mantle16.tgz", (151,160), "AysWSPnxFS6e5B2"),
+    ("mantle17.tgz", (161,170), "4NcnJkPYWpkXrmb"),
+    ("mantle18.tgz", (171,180), "mBRfrnfEEEaKJ9m"),
+    ("mantle19.tgz", (181,190), "J63KxeCppK8ssGc"),
+    ("mantle20.tgz", (191,200), "NeqnHBNPWx4PRwd"),
+    ("mantle21.tgz", (201,210), "JdzZQCKiHaRfL9L"),
+    ("mantle22.tgz", (211,220), "DXnWtA5fymHBsxA"),
+    ("mantle23.tgz", (221,230), "HzgtF42Pf9AnxGm"),
+    ("mantle24.tgz", (231,240), "yy8FASeC8Dm54Sy"),
+    ("mantle25.tgz", (241,251), "TC8QekmjokmBkWA"),
+]
+
+"""Use data index lookup to find tarfile name"""
+def find_tarfile(i):
+    if i < 1:
+        ValueError("Out of bounds")
+    for (name,indexRange,urlCode) in data_index_lookup:
+        if (indexRange[0]<=i) & (i<=indexRange[1]):
+            return name,urlCode
+    raise ValueError("Out of bounds")
+
+def request_tarfile(filenameTgz,outputFilename):
+    urllib.request.urlretrieve(filenameTgz, filename=outputFilename)
+    return None
+
+"""Determine if the iteration count is at the start of a file section"""
+def is_start(i):
+    for (_,indexRange,_) in data_index_lookup:
+        if (indexRange[0]==i):
+            return True
+    return False
+
+"""Determine if the iteration count is at the end of a file section"""
+def is_end(i):
+    for (_,indexRange,_) in data_index_lookup:
+        if (indexRange[1]==i):
+            return True
+    return False
+
+"""Make the url for getting the tgz field files"""
+def make_tgz_url(urlCode):
+    return f"https://nextcloud.computecanada.ca/index.php/s/{url01}/download"
+
 
 ## Animation functions
 
@@ -125,3 +189,52 @@ class SceneSingleLevel():
             frames=frames
         )
         ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
+
+    """Getting simulation data from urls"""
+    def load_make_animation_frame(self,i):
+        # Get step info in 1 <= i <= 251 range
+        isEnd = is_end(i)
+        
+        # Perform procedure
+        print(f"step:{i}")
+
+        # Load field data
+        self.load_field_data(i)
+
+        # Make frame
+        print(f"Plot slice")
+
+        # Delete field data
+        print(f"Deleting:{sFile}")
+        if isEnd: print(f"Deleting:{tarFile}")
+        print(" ")
+
+        return None
+
+    def load_field_data(self,i):
+        # If the index is a start, request the tar file
+        isStart = is_start(i)
+        
+        if isStart: 
+            # Get filename and url code
+            tarFile, urlCode = find_tarfile(i)
+
+            # Make url
+            urlTgz = make_tgz_url(urlCode)
+
+            # Request file
+            print(f"Downloading:{tarFile} @ {urlCode}")
+            request_tarfile(urlTgz,tarFile)
+
+            # Extract files from tar
+            with tarfile.open(tarFile, "r:gz") as tar:
+                tar.extractall()
+
+        
+        # Load file from tar
+        sphericalFile = f"spherical{i:03d}.nc"
+        print(f"Loading:{sphericalFile}")
+
+        # Load field data using xarray
+        data = xr.open_dataset(sphericalFile)
+        return data.temperature.values
