@@ -1,3 +1,4 @@
+import os
 import pickle
 import urllib.request
 import tarfile
@@ -137,6 +138,7 @@ class SceneSingleLevel():
         # Colormap
         self.c_set_map = make_cmap(self.r_min,self.r_max,cmapName='hot')
 
+    """Requesting field data"""
     def load_field_data(self,i):
         # If the index is a start, request the tar file
         isStart = is_start(i)
@@ -156,12 +158,25 @@ class SceneSingleLevel():
             with tarfile.open(tarFile, "r:gz") as tar:
                 tar.extractall()
 
+            # Delete tar file
+            print(f"Testing for file {tarFile}")
+            if os.path.isfile(tarFile):
+                print(f"Deleting file {tarFile}")
+                os.remove(tarFile)
+
         # Load file from tar
         sphericalFile = f"spherical{i:03d}.nc"
         print(f"Loading:{sphericalFile}")
 
         # Load field data using xarray
         data = _xr.open_dataset(sphericalFile)
+
+        # Delete .nc file
+        print(f"Testing for file {sphericalFile}")
+        if os.path.isfile(sphericalFile):
+            print(f"Deleting file {sphericalFile}")
+            os.remove(sphericalFile)
+        
         return data.temperature.values
 
     """Generate triangulated mesh"""
@@ -195,9 +210,19 @@ class SceneSingleLevel():
         return None
 
     """Rotate the viewing angle"""
-    def animate_rotate(self,fieldData,frames,fullrotFrames,i):
+    def animate_rotate(self,fieldData,fullrotFrames,i):
         elev = 30
         azim = _np.interp(i,[0,fullrotFrames],[-65,295])
+        self.single_frame_viewangle(fieldData,elev,azim)
+        return None
+    
+    """Keep angle fixed"""
+    def animate_fixed(self,i):
+
+        fieldData = self.load_field_data(i)
+
+        elev = 30
+        azim = -65
         self.single_frame_viewangle(fieldData,elev,azim)
         return None
 
@@ -205,7 +230,23 @@ class SceneSingleLevel():
     def make_stationary_animation(self,filename,dpi=80,fps=25,frames=100,fullrotFrames=200):
         
         # Make animation handle
-        anim_handle = lambda i: self.animate_rotate(self.exampleFieldData,frames,fullrotFrames,i)
+        anim_handle = lambda i: self.animate_rotate(self.exampleFieldData,fullrotFrames,i)
+
+        # Make animation 
+        ani = _an.FuncAnimation(
+            self.fig, 
+            anim_handle, 
+            interval=40, 
+            repeat=True, 
+            frames=frames
+        )
+        ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
+
+    """Animation function for time-varying single contour level"""
+    def make_vary_animation(self,filename,dpi=80,fps=25,frames=9):
+        
+        # Make animation handle
+        anim_handle = lambda i: self.animate_fixed(i)
 
         # Make animation 
         ani = _an.FuncAnimation(
@@ -226,10 +267,7 @@ class SceneSingleLevel():
         print(f"step:{i}")
 
         # Load field data
-        self.load_field_data(i)
-
-        # Make frame
-        print(f"Plot slice")
+        fieldData = self.load_field_data(i)
 
         # Delete field data
         print(f"Deleting:{sFile}")
