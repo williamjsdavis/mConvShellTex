@@ -155,7 +155,6 @@ class SceneSingleLevel():
             # Extract files from tar
             with tarfile.open(tarFile, "r:gz") as tar:
                 tar.extractall()
-
         
         # Load file from tar
         sphericalFile = f"spherical{i:03d}.nc"
