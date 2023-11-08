@@ -220,10 +220,11 @@ class SceneSingleLevel():
     def animate_fixed(self,i):
 
         fieldData = self.load_field_data(i)
+        fieldSlice = lambda i: fieldData[:,i,:].flatten()
 
         elev = 30
         azim = -65
-        self.single_frame_viewangle(fieldData,elev,azim)
+        self.single_frame_viewangle(fieldSlice,elev,azim)
         return None
 
     """First animation function for single contour level"""
