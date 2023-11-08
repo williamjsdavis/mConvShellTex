@@ -101,7 +101,7 @@ def is_end(i):
 
 """Make the url for getting the tgz field files"""
 def make_tgz_url(urlCode):
-    return f"https://nextcloud.computecanada.ca/index.php/s/{url01}/download"
+    return f"https://nextcloud.computecanada.ca/index.php/s/{urlCode}/download"
 
 
 ## Animation functions
@@ -236,5 +236,5 @@ class SceneSingleLevel():
         print(f"Loading:{sphericalFile}")
 
         # Load field data using xarray
-        data = xr.open_dataset(sphericalFile)
+        data = _xr.open_dataset(sphericalFile)
         return data.temperature.values
