@@ -67,7 +67,8 @@ class SceneSingleLevel():
 
         # Loading example field data
         tdata = load_example_tdata()
-        self.exampleFieldData = tdata["tdata"].flatten()
+        tslice = tdata["tdata"].flatten()
+        self.exampleFieldData = lambda i: tslice
 
         # Colormap
         self.c_set_map = make_cmap(self.r_min,self.r_max,cmapName='hot')
@@ -83,10 +84,11 @@ class SceneSingleLevel():
     def single_frame_viewangle(self,fieldData,elev,azim):
         self.ax.clear()
         for (i_radius,v_radius) in self.iv_radius[::self.ri_step]:
-            if any(fieldData > self.p_levels[0]):
+            fieldSlice = fieldData(i_radius)
+            if any(fieldSlice > self.p_levels[0]):
                 self.ax.tricontourf(
                     self.triang,
-                    fieldData,
+                    fieldSlice,
                     self.p_levels,
                     zdir='z',
                     colors=self.c_set_map(v_radius),
