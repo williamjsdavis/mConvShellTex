@@ -137,6 +137,34 @@ class SceneSingleLevel():
         # Colormap
         self.c_set_map = make_cmap(self.r_min,self.r_max,cmapName='hot')
 
+    def load_field_data(self,i):
+        # If the index is a start, request the tar file
+        isStart = is_start(i)
+        
+        if isStart: 
+            # Get filename and url code
+            tarFile, urlCode = find_tarfile(i)
+
+            # Make url
+            urlTgz = make_tgz_url(urlCode)
+
+            # Request file
+            print(f"Downloading:{tarFile} @ {urlCode}")
+            request_tarfile(urlTgz,tarFile)
+
+            # Extract files from tar
+            with tarfile.open(tarFile, "r:gz") as tar:
+                tar.extractall()
+
+        
+        # Load file from tar
+        sphericalFile = f"spherical{i:03d}.nc"
+        print(f"Loading:{sphericalFile}")
+
+        # Load field data using xarray
+        data = _xr.open_dataset(sphericalFile)
+        return data.temperature.values
+
     """Generate triangulated mesh"""
     def gen_mesh(self):
         xygrid = load_xygrid()
@@ -210,31 +238,3 @@ class SceneSingleLevel():
         print(" ")
 
         return None
-
-    def load_field_data(self,i):
-        # If the index is a start, request the tar file
-        isStart = is_start(i)
-        
-        if isStart: 
-            # Get filename and url code
-            tarFile, urlCode = find_tarfile(i)
-
-            # Make url
-            urlTgz = make_tgz_url(urlCode)
-
-            # Request file
-            print(f"Downloading:{tarFile} @ {urlCode}")
-            request_tarfile(urlTgz,tarFile)
-
-            # Extract files from tar
-            with tarfile.open(tarFile, "r:gz") as tar:
-                tar.extractall()
-
-        
-        # Load file from tar
-        sphericalFile = f"spherical{i:03d}.nc"
-        print(f"Loading:{sphericalFile}")
-
-        # Load field data using xarray
-        data = _xr.open_dataset(sphericalFile)
-        return data.temperature.values
