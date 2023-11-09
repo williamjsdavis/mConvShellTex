@@ -209,8 +209,8 @@ class SceneSingleLevel():
         self.ax.view_init(elev=elev, azim=azim)
         return None
 
-    """Rotate the viewing angle"""
-    def animate_rotate(self,fieldData,fullrotFrames,i):
+    """Rotate the stationary scene"""
+    def animate_rotate_stationary(self,fieldData,fullrotFrames,i):
         elev = 30
         azim = _np.interp(i,[0,fullrotFrames],[-65,295])
         self.single_frame_viewangle(fieldData,elev,azim)
@@ -225,6 +225,18 @@ class SceneSingleLevel():
 
         elev = 30
         azim = -65
+        self.single_frame_viewangle(fieldSlice,elev,azim)
+        return None
+
+    """Keep angle fixed"""
+    def animate_rotate(self,i,fullrotFrames):
+        print(f"frame: {i}")
+
+        fieldData = self.load_field_data(i)
+        fieldSlice = lambda i: fieldData[:,i,:].flatten()
+
+        elev = 30
+        azim = _np.interp(i,[0,fullrotFrames],[-65,295])
         self.single_frame_viewangle(fieldSlice,elev,azim)
         return None
 
@@ -260,20 +272,18 @@ class SceneSingleLevel():
         )
         ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
 
-    """Getting simulation data from urls"""
-    def load_make_animation_frame(self,i):
-        # Get step info in 1 <= i <= 251 range
-        isEnd = is_end(i)
+    """Animation function for time-varying, rotating single contour level"""
+    def make_rotate_animation(self,filename,dpi=80,fps=25,frames=9,fullrotFrames=200):
         
-        # Perform procedure
-        print(f"step:{i}")
+        # Make animation handle
+        anim_handle = lambda i: self.animate_rotate(i,fullrotFrames=fullrotFrames)
 
-        # Load field data
-        fieldData = self.load_field_data(i)
-
-        # Delete field data
-        print(f"Deleting:{sFile}")
-        if isEnd: print(f"Deleting:{tarFile}")
-        print(" ")
-
-        return None
+        # Make animation 
+        ani = _an.FuncAnimation(
+            self.fig, 
+            anim_handle, 
+            interval=40, 
+            repeat=True, 
+            frames=range(1,frames+1)
+        )
+        ani.save(filename, dpi=dpi, writer=_an.PillowWriter(fps=fps))
