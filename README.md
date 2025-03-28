@@ -26,5 +26,12 @@ See here for the highlight: [timestamp](https://youtu.be/O-2viBhLTqI?t=1698).
 
 ## Installation & Usage  
 
-(*Add installation instructions and usage examples here.*)
+Use the requirements file to install the required dependencies:
 
+```python
+pip install -r requirements.txt
+```
+
+To make visualizations, you will need to download the mantle convection dataset:
+
+[SciVis Contest 2021: Earth’s Mantle Convection](https://scivis2021.netlify.app/)
