@@ -28,7 +28,7 @@ See here for the highlight: [timestamp](https://youtu.be/O-2viBhLTqI?t=1698).
 
 Use the requirements file to install the required dependencies:
 
-```python
+```
 pip install -r requirements.txt
 ```
 
